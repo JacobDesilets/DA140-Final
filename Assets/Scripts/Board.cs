@@ -1,20 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-public class Board : MonoBehaviour
+
+public class Board
 {
-    private float gridSize;
+    private Dictionary<Vector3, Tile> cells;
 
-    // Start is called before the first frame update
-    void Start()
+    public Board()
     {
-        
+        cells = new Dictionary<Vector3, Tile>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void place(Vector3 pos, Tile t)
     {
-        
+        cells.Add(pos, t);
     }
+
+    public Tile getTile(Vector3 pos)
+    {
+        Tile tile = null;
+        bool success = cells.TryGetValue(pos, out tile);
+
+        if(success) { return tile; }
+        else { return null; }
+    }
+   
 }
