@@ -4,7 +4,7 @@ using UnityEngine;
 public class Tile
 {
     private EdgeNode[] edges;
-    GameObject prefab;
+    public GameObject prefab;
 
     public Tile(EdgeType top, EdgeType right, EdgeType bottom, EdgeType left, GameObject prefab)
     {

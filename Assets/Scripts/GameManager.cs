@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get; private set; }
     public GameObject testTileObject;
+    public Tile activeTile;
 
     private int playerCount;
     private int turn = 1;
@@ -63,6 +64,7 @@ public class GameManager : MonoBehaviour
         pc = player.GetComponent<PlayerController>();
         board = new Board();
         testTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, testTileObject);
+        activeTile = testTile;
     }
 
     // Update is called once per frame
