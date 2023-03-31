@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     private Vector3Int cursorPos;
 
     public static GameManager Instance { get; private set; }
-    public GameObject testTileObject;
     public Tile activeTile;
 
     public Tile previewTile;
@@ -24,6 +23,35 @@ public class GameManager : MonoBehaviour
     private TileDeck td;
 
     private Tile testTile;
+
+    private Tile[] loadTiles() {
+        GameObject[] objs = Resources.LoadAll<GameObject>("Tiles");
+        Tile[] t = new Tile[objs.Length];
+        int i = 0;
+        foreach(GameObject o in objs) {
+            string code = o.name.Substring(0, 4);
+            EdgeType[] et = new EdgeType[4];
+            int j = 0;
+            foreach(char c in code) {
+                switch(c) {
+                    case 'F':
+                        et[j] = EdgeType.Field;
+                        break;
+                    case 'R':
+                        et[j] = EdgeType.Road;
+                        break;
+                    case 'C':
+                        et[j] = EdgeType.City;
+                        break;
+                }
+                j++;
+            }
+            
+            t[i] = new Tile(et[0], et[1], et[2], et[3], o);
+            i++;
+        }
+        return t;
+    }
 
     void Awake()
     {
@@ -39,14 +67,12 @@ public class GameManager : MonoBehaviour
         pc = player.GetComponent<PlayerController>();
         board = new Board();
 
-        testTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, testTileObject);
-
-        Tile[] tileArray = { testTile };
-
+        Tile[] tileArray = loadTiles();
         td = new TileDeck(tileArray);
 
         activeTile = td.currentTile;
         previewTile = activeTile;
+
     }
 
     public void setPlayers(int count)

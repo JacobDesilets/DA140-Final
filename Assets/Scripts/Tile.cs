@@ -59,7 +59,6 @@ public class Tile
 
     public Quaternion getRotation()
     {
-        Debug.Log(rotation);
         Quaternion qrot = Quaternion.Euler(0, rotation * 90, 0);
         return qrot * prefab.transform.localRotation;
     }
