@@ -9,7 +9,7 @@ public class Tile
     private int bottomIndex = 2;
     private int leftIndex = 3;
 
-    private int rotation = 0;
+    protected int rotation = 0;
 
     public GameObject prefab;
 
@@ -17,6 +17,18 @@ public class Tile
     {
         edges = new EdgeNode[] { new EdgeNode(top), new EdgeNode(right), new EdgeNode(bottom), new EdgeNode(left)};
         this.prefab = prefab;
+    }
+
+    public Tile copy()
+    {
+        Tile newTile = new Tile(edges[0].type, edges[1].type, edges[2].type, edges[3].type, prefab);
+        newTile.rotation = rotation;
+        newTile.topIndex = topIndex;
+        newTile.rightIndex = rightIndex;
+        newTile.bottomIndex = bottomIndex;
+        newTile.leftIndex = leftIndex;
+
+        return newTile;
     }
 
     public EdgeNode getTop()
@@ -37,6 +49,48 @@ public class Tile
     public EdgeNode getLeft()
     {
         return edges[leftIndex];
+    }
+
+    public EdgeNode getRelevantEdge(int index)  // 0 1 2 3 :: top right bottom left
+    {
+        EdgeNode output = null;
+        switch(index)
+        {
+            case 0:
+                output = getBottom();
+                break;
+            case 1:
+                output = getLeft();
+                break;
+            case 2:
+                output = getTop();
+                break;
+            case 3:
+                output = getRight();
+                break;
+        }
+        return output;
+    }
+
+    public EdgeNode getRelevantEdgeActive(int index)  // 0 1 2 3 :: top right bottom left
+    {
+        EdgeNode output = null;
+        switch (index)
+        {
+            case 0:
+                output = getTop();
+                break;
+            case 1:
+                output = getRight();
+                break;
+            case 2:
+                output = getBottom();
+                break;
+            case 3:
+                output = getLeft();
+                break;
+        }
+        return output;
     }
 
     public void rotate()

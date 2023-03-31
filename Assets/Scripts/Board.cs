@@ -9,6 +9,7 @@ public class Board
     public Board()
     {
         cells = new Dictionary<Vector3Int, Tile>();
+        place(new Vector3Int(0, 0, 0), new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null));
     }
 
     public void place(Vector3Int pos, Tile t)

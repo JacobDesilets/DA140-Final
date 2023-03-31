@@ -35,7 +35,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
-
     }
 
     // Update is called once per frame
@@ -62,7 +61,7 @@ public class PlayerController : MonoBehaviour
         // Place
         if(placeAction.triggered)
         {
-            GameManager.Instance.placeTile();
+            GameManager.Instance.placeTile(selectedPos);
         }
 
         // Rotate
@@ -72,6 +71,8 @@ public class PlayerController : MonoBehaviour
             Destroy(cursorVisual);
             cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
         }
+
+        //Debug.Log($"{selectedPos.x}, {selectedPos.z}");
     }
 
     public Vector3Int getCursorPos()

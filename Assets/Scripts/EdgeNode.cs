@@ -11,4 +11,23 @@ public class EdgeNode
     {
         return (other.type == type);
     }
+
+    public override string ToString()
+    {
+        string output = "";
+        switch(type)
+        {
+            case EdgeType.Road:
+                output = "Road";
+                break;
+            case EdgeType.City:
+                output = "City";
+                break;
+            case EdgeType.Field:
+                output = "Field";
+                break;
+        }
+
+        return output;
+    }
 }
