@@ -14,11 +14,14 @@ public class GameManager : MonoBehaviour
     public GameObject testTileObject;
     public Tile activeTile;
 
+    public Tile previewTile;
+
     private int playerCount;
     private int turn = 1;
     private int[] scores;
 
     private Board board;
+    private TileDeck td;
 
     private Tile testTile;
 
@@ -32,6 +35,18 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
         }
+
+        pc = player.GetComponent<PlayerController>();
+        board = new Board();
+
+        testTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, testTileObject);
+
+        Tile[] tileArray = { testTile };
+
+        td = new TileDeck(tileArray);
+
+        activeTile = td.currentTile;
+        previewTile = activeTile;
     }
 
     public void setPlayers(int count)
@@ -46,25 +61,34 @@ public class GameManager : MonoBehaviour
         if(turn > playerCount) { turn = 1; }
     }
 
+    public GameObject getPreviewTileObject(Vector3 pos)
+    {
+        return Instantiate(previewTile.prefab, pos, previewTile.getRotation());
+    }
+
+    public void rotateActiveTile()
+    {
+        Debug.Log("Rotate!");
+        activeTile.rotate();
+    }
+
     public void score(int points)
     {
         scores[turn - 1] += points;
     }
 
-    public void testPlace()
+    public void placeTile()
     {
-        if(board.getTile(cursorPos) != null) { Debug.Log("Already occupied!"); return; }
-        board.place(cursorPos, testTile);
-        Instantiate(testTileObject, cursorPos, Quaternion.identity * testTileObject.transform.localRotation);
+        if (board.getTile(cursorPos) != null) { Debug.Log("Already occupied!"); return; }
+        Debug.Log("Place!");
+        board.place(cursorPos, activeTile);
+        Instantiate(activeTile.prefab, cursorPos, activeTile.getRotation());
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        pc = player.GetComponent<PlayerController>();
-        board = new Board();
-        testTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, testTileObject);
-        activeTile = testTile;
+        
     }
 
     // Update is called once per frame

@@ -9,11 +9,12 @@ public class PlayerController : MonoBehaviour
 
     public InputActionAsset actions;
 
-    public GameObject cursorPrefab;
+    //public GameObject cursorPrefab;
     private GameObject cursorVisual;
 
     private InputAction moveAction;
     private InputAction placeAction;
+    private InputAction rotateAction;
 
 
     private GameObject cursor;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
     {
         moveAction = actions.FindActionMap("Gameplay").FindAction("Move");
         placeAction = actions.FindActionMap("Gameplay").FindAction("Place");
+        rotateAction = actions.FindActionMap("Gameplay").FindAction("Rotate");
 
 
         cursor = transform.Find("Cursor").gameObject;
@@ -32,7 +34,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        cursorVisual = Instantiate(cursorPrefab, new Vector3(0, 0, 0), Quaternion.identity * cursorPrefab.transform.localRotation);
+        cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
+
     }
 
     // Update is called once per frame
@@ -59,8 +62,15 @@ public class PlayerController : MonoBehaviour
         // Place
         if(placeAction.triggered)
         {
-            Debug.Log("Place!");
-            GameManager.Instance.testPlace();
+            GameManager.Instance.placeTile();
+        }
+
+        // Rotate
+        if (rotateAction.triggered)
+        {
+            GameManager.Instance.rotateActiveTile();
+            Destroy(cursorVisual);
+            cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
         }
     }
 
