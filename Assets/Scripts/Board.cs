@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 
 public class Board
@@ -18,17 +19,26 @@ public class Board
         features.Add(new Feature(EdgeType.City, startingTile));
     }
 
+
+
     public void place(Vector3Int pos, Tile t)
     {
         cells.Add(pos, t);
 
+        List<Feature> neighborFeatures = new List<Feature>();
         // Check if neighbors are in features
         Tile[] neighbors = getNeighbors(pos);
         foreach(Tile n in neighbors)
         {
             if(n != null)
             {
+                foreach(Feature f in features)
+                {
+                    if(f.containsTile(n))
+                    {
 
+                    }
+                }
             }
         }
     }
@@ -74,8 +84,21 @@ public class Feature
 
     public void addTile(Tile t)
     {
+        if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
         tiles.Add(t);
         if(t.isRoadEndpoint) { roadEndpoints++; }
+    }
+
+    public bool containsTile(Tile t)
+    {
+        Guid id = t.id;
+
+        foreach(Tile tile in tiles)
+        {
+            if(tile.id == id) { return true; }
+        }
+
+        return false;
     }
 
     public bool checkCompletion()

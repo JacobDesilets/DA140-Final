@@ -11,10 +11,10 @@ public class TileDeck
     public Tile currentTile;
 
 
-    public TileDeck(Tile[] tileArray)
+    public TileDeck()
     {
         tiles = new Stack<Tile>();
-        this.tileArray = tileArray;
+        this.tileArray = loadTiles();
         Util.Shuffle(this.tileArray);
         foreach (Tile t in this.tileArray)
         {
@@ -22,6 +22,40 @@ public class TileDeck
         }
 
         currentTile = tiles.Peek();
+    }
+
+    private Tile[] loadTiles()
+    {
+        GameObject[] objs = Resources.LoadAll<GameObject>("Tiles");
+        Tile[] t = new Tile[objs.Length];
+        int i = 0;
+        foreach (GameObject o in objs)
+        {
+            bool isRoadEndpoint = (o.name[4] == 'Y');
+            string code = o.name.Substring(0, 4);
+            EdgeType[] et = new EdgeType[4];
+            int j = 0;
+            foreach (char c in code)
+            {
+                switch (c)
+                {
+                    case 'F':
+                        et[j] = EdgeType.Field;
+                        break;
+                    case 'R':
+                        et[j] = EdgeType.Road;
+                        break;
+                    case 'C':
+                        et[j] = EdgeType.City;
+                        break;
+                }
+                j++;
+            }
+
+            t[i] = new Tile(et[0], et[1], et[2], et[3], o, isRoadEndpoint);
+            i++;
+        }
+        return t;
     }
 
     public void draw()

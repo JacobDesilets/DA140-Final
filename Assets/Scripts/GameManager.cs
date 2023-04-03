@@ -23,47 +23,11 @@ public class GameManager : MonoBehaviour
     private Board board;
     private TileDeck td;
 
-    private Tile[] loadTiles() {
-        GameObject[] objs = Resources.LoadAll<GameObject>("Tiles");
-        Tile[] t = new Tile[objs.Length];
-        int i = 0;
-        foreach(GameObject o in objs) {
-            bool isRoadEndpoint = (o.name[4] == 'Y');
-            string code = o.name.Substring(0, 4);
-            EdgeType[] et = new EdgeType[4];
-            int j = 0;
-            foreach(char c in code) {
-                switch(c) {
-                    case 'F':
-                        et[j] = EdgeType.Field;
-                        break;
-                    case 'R':
-                        et[j] = EdgeType.Road;
-                        break;
-                    case 'C':
-                        et[j] = EdgeType.City;
-                        break;
-                }
-                j++;
-            }
-            
-            t[i] = new Tile(et[0], et[1], et[2], et[3], o, isRoadEndpoint);
-            i++;
-        }
-        return t;
-    }
-
     private bool isValidPlaceLocation(Vector3Int pos)
     {
         // Case 0: location already occupied
         if (board.getTile(pos) != null) { Debug.Log("Already occupied!"); return false; }
 
-
-        //Tile topNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z+1));
-        //Tile rightNeighbor = board.getTile(new Vector3Int(pos.x+1, 0, pos.z));
-        //Tile bottomNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z-1));
-        //Tile leftNeighbor = board.getTile(new Vector3Int(pos.x-1, 0, pos.z));
-        //Tile[] neighbors = { topNeighbor, rightNeighbor, bottomNeighbor, leftNeighbor };
         Tile[] neighbors = board.getNeighbors(pos);
 
         // Case 1: Location has no neighbors
@@ -116,8 +80,7 @@ public class GameManager : MonoBehaviour
         pc = player.GetComponent<PlayerController>();
         board = new Board();
 
-        Tile[] tileArray = loadTiles();
-        td = new TileDeck(tileArray);
+        td = new TileDeck();
 
         activeTile = td.currentTile;
         previewTile = activeTile;
