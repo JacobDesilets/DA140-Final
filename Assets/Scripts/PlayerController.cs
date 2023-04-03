@@ -37,6 +37,12 @@ public class PlayerController : MonoBehaviour
         cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
     }
 
+    public void refreshPreviewTile()
+    {
+        Destroy(cursorVisual);
+        cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
+    }
+
     // Update is called once per frame
     void Update()
     {

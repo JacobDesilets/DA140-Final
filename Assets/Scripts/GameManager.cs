@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     public GameObject player;
     private PlayerController pc;
 
+    public GameObject noTileObject;
+
     public static GameManager Instance { get; private set; }
     public Tile activeTile;
 
@@ -26,6 +28,7 @@ public class GameManager : MonoBehaviour
         Tile[] t = new Tile[objs.Length];
         int i = 0;
         foreach(GameObject o in objs) {
+            bool isRoadEndpoint = (o.name[4] == 'Y');
             string code = o.name.Substring(0, 4);
             EdgeType[] et = new EdgeType[4];
             int j = 0;
@@ -44,7 +47,7 @@ public class GameManager : MonoBehaviour
                 j++;
             }
             
-            t[i] = new Tile(et[0], et[1], et[2], et[3], o);
+            t[i] = new Tile(et[0], et[1], et[2], et[3], o, isRoadEndpoint);
             i++;
         }
         return t;
@@ -55,12 +58,13 @@ public class GameManager : MonoBehaviour
         // Case 0: location already occupied
         if (board.getTile(pos) != null) { Debug.Log("Already occupied!"); return false; }
 
-        
-        Tile topNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z+1));
-        Tile rightNeighbor = board.getTile(new Vector3Int(pos.x+1, 0, pos.z));
-        Tile bottomNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z-1));
-        Tile leftNeighbor = board.getTile(new Vector3Int(pos.x-1, 0, pos.z));
-        Tile[] neighbors = { topNeighbor, rightNeighbor, bottomNeighbor, leftNeighbor };
+
+        //Tile topNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z+1));
+        //Tile rightNeighbor = board.getTile(new Vector3Int(pos.x+1, 0, pos.z));
+        //Tile bottomNeighbor = board.getTile(new Vector3Int(pos.x, 0, pos.z-1));
+        //Tile leftNeighbor = board.getTile(new Vector3Int(pos.x-1, 0, pos.z));
+        //Tile[] neighbors = { topNeighbor, rightNeighbor, bottomNeighbor, leftNeighbor };
+        Tile[] neighbors = board.getNeighbors(pos);
 
         // Case 1: Location has no neighbors
         bool hasNeighbors = false;
@@ -150,13 +154,26 @@ public class GameManager : MonoBehaviour
 
     public void placeTile(Vector3Int pos)
     {
-        
+        if(td.finished) { return; }
         if(!isValidPlaceLocation(pos)) { return; }
-
         Tile newTile = activeTile.copy();
         Debug.Log("Place!");
         board.place(pos, newTile);
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
+
+        td.draw();
+        if (!td.finished)
+        {
+            activeTile = td.currentTile;
+            previewTile = activeTile;
+
+            
+        } else { 
+            Debug.Log("Finished");
+            previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
+        }
+
+        pc.refreshPreviewTile();
     }
 
     // Start is called before the first frame update

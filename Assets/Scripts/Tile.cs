@@ -1,8 +1,11 @@
 using UnityEngine;
+using System;
 
 
 public class Tile
 {
+    public Guid id;
+
     private EdgeNode[] edges;
     private int topIndex = 0;
     private int rightIndex = 1;
@@ -13,15 +16,19 @@ public class Tile
 
     public GameObject prefab;
 
-    public Tile(EdgeType top, EdgeType right, EdgeType bottom, EdgeType left, GameObject prefab)
+    public bool isRoadEndpoint;
+
+    public Tile(EdgeType top, EdgeType right, EdgeType bottom, EdgeType left, GameObject prefab, bool isRoadEndpoint)
     {
+        id = Guid.NewGuid();
         edges = new EdgeNode[] { new EdgeNode(top), new EdgeNode(right), new EdgeNode(bottom), new EdgeNode(left)};
         this.prefab = prefab;
+        this.isRoadEndpoint = isRoadEndpoint;
     }
 
     public Tile copy()
     {
-        Tile newTile = new Tile(edges[0].type, edges[1].type, edges[2].type, edges[3].type, prefab);
+        Tile newTile = new Tile(edges[0].type, edges[1].type, edges[2].type, edges[3].type, prefab, isRoadEndpoint);
         newTile.rotation = rotation;
         newTile.topIndex = topIndex;
         newTile.rightIndex = rightIndex;

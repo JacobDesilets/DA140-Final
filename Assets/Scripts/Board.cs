@@ -5,16 +5,32 @@ using System.Collections.Generic;
 public class Board
 {
     private Dictionary<Vector3Int, Tile> cells;
+    private List<Feature> features;
 
     public Board()
     {
         cells = new Dictionary<Vector3Int, Tile>();
-        place(new Vector3Int(0, 0, 0), new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null));
+        Tile startingTile = new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null, false);
+        place(new Vector3Int(0, 0, 0), startingTile);
+
+        features = new List<Feature>();
+        features.Add(new Feature(EdgeType.Road, startingTile));
+        features.Add(new Feature(EdgeType.City, startingTile));
     }
 
     public void place(Vector3Int pos, Tile t)
     {
         cells.Add(pos, t);
+
+        // Check if neighbors are in features
+        Tile[] neighbors = getNeighbors(pos);
+        foreach(Tile n in neighbors)
+        {
+            if(n != null)
+            {
+
+            }
+        }
     }
 
     public Tile getTile(Vector3Int pos)
@@ -25,5 +41,50 @@ public class Board
         if(success) { return tile; }
         else { return null; }
     }
+
+    public Tile[] getNeighbors(Vector3Int pos)
+    {
+        Tile topNeighbor = getTile(new Vector3Int(pos.x, 0, pos.z + 1));
+        Tile rightNeighbor = getTile(new Vector3Int(pos.x + 1, 0, pos.z));
+        Tile bottomNeighbor = getTile(new Vector3Int(pos.x, 0, pos.z - 1));
+        Tile leftNeighbor = getTile(new Vector3Int(pos.x - 1, 0, pos.z));
+        Tile[] neighbors = { topNeighbor, rightNeighbor, bottomNeighbor, leftNeighbor };
+        return neighbors;
+    }
    
+}
+
+public class Feature
+{
+    public EdgeType type;
+    private List<Tile> tiles;
+    public bool complete = false;
+    private int roadEndpoints;
+
+    public Feature(EdgeType type, Tile initialTile)
+    {
+        this.type = type;
+        roadEndpoints = 0;
+
+        tiles = new List<Tile>();
+        tiles.Add(initialTile);
+
+        if(initialTile.isRoadEndpoint) { roadEndpoints++; }
+    }
+
+    public void addTile(Tile t)
+    {
+        tiles.Add(t);
+        if(t.isRoadEndpoint) { roadEndpoints++; }
+    }
+
+    public bool checkCompletion()
+    {
+        if(type == EdgeType.Road)
+        {
+            return (roadEndpoints == 2);
+        }
+
+        return false;
+    }
 }

@@ -26,9 +26,14 @@ public class TileDeck
 
     public void draw()
     {
-        tiles.Pop();
+        if(!finished)
+        {
+            tiles.Pop();
+        }
+        
         if (tiles.Count == 0)
         {
+            Debug.Log("Drew last tile!");
             finished = true;
             currentTile = null;
             return;
