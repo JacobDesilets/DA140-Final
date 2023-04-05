@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
 
     public Tile previewTile;
 
-    private int playerCount;
-    private int turn = 1;
+    public int playerCount { get; private set; }
+    public int turn { get; private set; }
     private int[] scores;
 
     private Board board;
@@ -35,6 +35,15 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
+        begin();
+
+    }
+
+    public void begin()
+    {
+        turn = 1;
+        setPlayers(2);
+
         pc = player.GetComponent<PlayerController>();
         board = new Board();
 
@@ -42,7 +51,6 @@ public class GameManager : MonoBehaviour
 
         activeTile = td.currentTile;
         previewTile = activeTile;
-
     }
 
     public void setPlayers(int count)
@@ -76,6 +84,11 @@ public class GameManager : MonoBehaviour
     public void score(int points)
     {
         scores[turn - 1] += points;
+    }
+
+    public int getScore(int player)
+    {
+        return scores[player - 1];
     }
 
     public void placeTile(Vector3Int pos)
