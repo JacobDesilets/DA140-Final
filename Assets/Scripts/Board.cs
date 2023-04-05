@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Assertions;
 
 
 public class Board
@@ -10,13 +11,14 @@ public class Board
 
     public Board()
     {
+        features = new List<Feature>();
         cells = new Dictionary<Vector3Int, Tile>();
         Tile startingTile = new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null, false);
         place(new Vector3Int(0, 0, 0), startingTile);
 
-        features = new List<Feature>();
-        features.Add(new Feature(EdgeType.Road, startingTile));
-        features.Add(new Feature(EdgeType.City, startingTile));
+        
+        //features.Add(new Feature(EdgeType.Road, startingTile));
+        //features.Add(new Feature(EdgeType.City, startingTile));
     }
 
 
@@ -26,21 +28,107 @@ public class Board
         cells.Add(pos, t);
 
         List<Feature> neighborFeatures = new List<Feature>();
-        // Check if neighbors are in features
         Tile[] neighbors = getNeighbors(pos);
-        foreach(Tile n in neighbors)
+        EdgeNode[] activeTileEdges = t.getEdges();
+
+        // Create EdgeNode connections
+        for (int i = 0; i < neighbors.Length; i++)
         {
+            Tile n = neighbors[i];
+            EdgeNode activeEdge = activeTileEdges[i];
             if(n != null)
             {
-                foreach(Feature f in features)
-                {
-                    if(f.containsTile(n))
-                    {
+                EdgeNode neighborEdge = n.getRelevantEdge(i);
+                activeEdge.connectedTo = neighborEdge;
+                neighborEdge.connectedTo = activeEdge;
 
-                    }
+            }
+        }
+
+
+        // Update features
+        updateRoadFeatures(t);
+
+    }
+
+    public void updateRoadFeatures(Tile t)
+    {
+        //Debug.Log(t == null);
+        EdgeNode[] edges = t.getEdges();
+        List<EdgeNode> connectedRoads = new List<EdgeNode>();
+
+        // Find connected roads
+        foreach(EdgeNode e in edges)
+        {
+            if(e.type == EdgeType.Road)
+            {
+                if(e.connectedTo != null) { connectedRoads.Add(e.connectedTo); }
+            }
+        }
+
+        // Create new feature if no connected roads
+        if(connectedRoads.Count == 0)
+        {
+            t.roadFeature = new Feature(EdgeType.Road, t);
+            features.Add(t.roadFeature);
+            
+        } else  // Add to existing road feature, merge if needed
+        {
+            if(connectedRoads.Count == 1)
+            {
+                connectedRoads[0].belongsToTile.roadFeature.addTile(t);
+            } else if(connectedRoads.Count == 2)
+            {
+                connectedRoads[0].belongsToTile.roadFeature.addTile(t);
+                connectedRoads[0].belongsToTile.roadFeature.merge(connectedRoads[1].belongsToTile.roadFeature);
+            }
+        }
+
+    }
+
+    public bool isValidPlaceLocation(Vector3Int pos, Tile activeTile)
+    {
+        // Case 0: location already occupied
+        if (getTile(pos) != null) { Debug.Log("Already occupied!"); return false; }
+
+        Tile[] neighbors = getNeighbors(pos);
+
+        // Case 1: Location has no neighbors
+        bool hasNeighbors = false;
+        foreach (Tile n in neighbors)
+        {
+            if (n != null) { hasNeighbors = true; }
+        }
+
+        if (!hasNeighbors)
+        {
+            Debug.Log("Invalid place location! Must be adjacent to at least one tile");
+            return false;
+        }
+
+        // Case 2: Tiles can't connect
+
+        for (int i = 0; i < neighbors.Length; i++)
+        {
+            if (neighbors[i] != null)
+            {
+                if (!neighbors[i].getRelevantEdge(i).match(activeTile.getRelevantEdgeActive(i)))
+                {
+                    //Debug.Log(i);
+                    //Debug.Log($"Top: {activeTile.getTop()} Right: {activeTile.getRight()} Bottom: {activeTile.getBottom()} Left: {activeTile.getLeft()}");
+                    Debug.Log($"Invalid place location! Doesn't match neighboring tile -> {neighbors[i].getRelevantEdge(i)} : {activeTile.getRelevantEdgeActive(i)}");
+                    return false;
+                }
+                else
+                {
+                    Debug.Log($"Valid place location! Matches neighboring tile -> {neighbors[i].getRelevantEdge(i)} : {activeTile.getRelevantEdgeActive(i)}");
                 }
             }
         }
+
+        // Case 3: Tiles can connect
+        return true;
+
     }
 
     public Tile getTile(Vector3Int pos)
@@ -67,9 +155,9 @@ public class Board
 public class Feature
 {
     public EdgeType type;
-    private List<Tile> tiles;
+    protected List<Tile> tiles;
     public bool complete = false;
-    private int roadEndpoints;
+    protected int roadEndpoints;
 
     public Feature(EdgeType type, Tile initialTile)
     {
@@ -82,11 +170,30 @@ public class Feature
         if(initialTile.isRoadEndpoint) { roadEndpoints++; }
     }
 
+    public void merge(Feature other)
+    {
+        Assert.AreEqual(type, other.type);
+        Assert.AreEqual(other.complete, false);
+
+        foreach(Tile t in other.tiles)
+        {
+            addTile(t);
+        }
+    }
+
     public void addTile(Tile t)
     {
-        if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
-        tiles.Add(t);
-        if(t.isRoadEndpoint) { roadEndpoints++; }
+        // Roads
+        if(type == EdgeType.Road)
+        {
+            if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
+            tiles.Add(t);
+            if (t.isRoadEndpoint) { roadEndpoints++; }
+            t.roadFeature = this;
+            
+            if(complete = checkCompletion()) { Debug.Log("Feature complete!"); }
+        }
+        
     }
 
     public bool containsTile(Tile t)

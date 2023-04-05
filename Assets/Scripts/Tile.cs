@@ -16,14 +16,19 @@ public class Tile
 
     public GameObject prefab;
 
+    public Feature roadFeature;
+
     public bool isRoadEndpoint;
+
 
     public Tile(EdgeType top, EdgeType right, EdgeType bottom, EdgeType left, GameObject prefab, bool isRoadEndpoint)
     {
         id = Guid.NewGuid();
-        edges = new EdgeNode[] { new EdgeNode(top), new EdgeNode(right), new EdgeNode(bottom), new EdgeNode(left)};
+        edges = new EdgeNode[] { new EdgeNode(top, this), new EdgeNode(right, this), new EdgeNode(bottom, this), new EdgeNode(left, this)};
         this.prefab = prefab;
         this.isRoadEndpoint = isRoadEndpoint;
+
+        roadFeature = null;
     }
 
     public Tile copy()
@@ -98,6 +103,12 @@ public class Tile
                 break;
         }
         return output;
+    }
+
+    public EdgeNode[] getEdges()
+    {
+        EdgeNode[] e = { getTop(), getRight(), getBottom(), getLeft() };
+        return e;
     }
 
     public void rotate()

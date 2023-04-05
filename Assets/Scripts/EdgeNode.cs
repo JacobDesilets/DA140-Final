@@ -2,9 +2,13 @@
 public class EdgeNode
 {
     public EdgeType type;
-    public EdgeNode(EdgeType type)
+    public Tile belongsToTile { get; private set; }
+    public EdgeNode connectedTo { get; set; }
+    public EdgeNode(EdgeType type, Tile belongsToTile)
     {
         this.type = type;
+        this.belongsToTile = belongsToTile;
+        this.connectedTo = null;
     }
 
     public bool match(EdgeNode other)
