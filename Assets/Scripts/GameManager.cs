@@ -51,6 +51,11 @@ public class GameManager : MonoBehaviour
         scores = new int[count];
     }
 
+    public string getCurrentPlayerText()
+    {
+        return ($"Player: {turn}");
+    }
+
     public void advanceTurn()
     {
         turn++;
