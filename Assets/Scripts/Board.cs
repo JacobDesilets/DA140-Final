@@ -158,6 +158,8 @@ public class Feature
     protected List<Tile> tiles;
     public bool complete = false;
     protected int roadEndpoints;
+    private List<int> claimants;
+    private int meepleCount;
 
     public Feature(EdgeType type, Tile initialTile)
     {
@@ -168,6 +170,18 @@ public class Feature
         tiles.Add(initialTile);
 
         if(initialTile.isRoadEndpoint) { roadEndpoints++; }
+        claimants = new List<int>();
+        meepleCount = 0;
+    }
+
+    public bool claim(int player, int meepleCount)
+    {
+        if(claimants.Count == 0)
+        {
+            claimants.Add(player);
+            this.meepleCount = meepleCount;
+            return true;
+        } else { return false;  }
     }
 
     public void merge(Feature other)

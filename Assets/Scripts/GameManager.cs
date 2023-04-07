@@ -101,6 +101,7 @@ public class GameManager : MonoBehaviour
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
 
         td.draw();
+        advanceTurn();
         if (!td.finished)
         {
             activeTile = td.currentTile;
