@@ -158,8 +158,7 @@ public class Feature
     protected List<Tile> tiles;
     public bool complete = false;
     protected int roadEndpoints;
-    private List<int> claimants;
-    private int meepleCount;
+    protected Dictionary<int, int> claimants;
 
     public Feature(EdgeType type, Tile initialTile)
     {
@@ -170,30 +169,48 @@ public class Feature
         tiles.Add(initialTile);
 
         if(initialTile.isRoadEndpoint) { roadEndpoints++; }
-        claimants = new List<int>();
-        meepleCount = 0;
+        claimants = new Dictionary<int, int>();
     }
 
     public bool claim(int player, int meepleCount)
     {
         if(claimants.Count == 0)
         {
-            claimants.Add(player);
-            this.meepleCount = meepleCount;
+            claimants.Add(player, meepleCount);
             return true;
         } else { return false;  }
     }
 
     public void merge(Feature other)
     {
+        Debug.Log("Merging features!");
         Assert.AreEqual(type, other.type);
         Assert.AreEqual(other.complete, false);
 
-        foreach(Tile t in other.tiles)
+        foreach(var p in other.claimants)
+        {
+            if(claimants.ContainsKey(p.Key))
+            {
+                claimants[p.Key] = Math.Max(p.Value, claimants[p.Key]);
+            } else
+            {
+                claimants.Add(p.Key, p.Value);
+            }
+        }
+
+        foreach (Tile t in other.tiles)
         {
             addTile(t);
+            if (t.roadFeature != null)
+            {
+                t.roadFeature = this;
+            }
         }
+
+
     }
+
+  
 
     public void addTile(Tile t)
     {

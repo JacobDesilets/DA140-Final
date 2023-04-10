@@ -119,19 +119,26 @@ public class Tile
         rightIndex = increment(rightIndex);
 
         rotation = increment(rotation);
+        EdgeNode[] testEdges = getEdges();
+        string edgesString = "";
+        foreach(EdgeNode e in testEdges)
+        {
+            edgesString += " " + e.ToString();
+        }
+        Debug.Log(edgesString);
     }
 
     private int increment(int val)
     {
         int output = val;
         output++;
-        if(output > 3) { output = 0; }
+        if (output > 3) { output = 0; }
         return output;
     }
 
     public Quaternion getRotation()
     {
-        Quaternion qrot = Quaternion.Euler(0, rotation * 90, 0);
+        Quaternion qrot = Quaternion.Euler(0, rotation * -90, 0);
         return qrot * prefab.transform.localRotation;
     }
 

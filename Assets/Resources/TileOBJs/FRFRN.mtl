@@ -1,0 +1,14 @@
+# Blender MTL File: 'FRFRN.blend'
+# Material Count: 1
+
+newmtl Tile
+Ns 359.999993
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\desilejf\\Desktop\\UnityStuff\\DA140-Final\\Assets\\Textures\\TestTileTextures\\Material_Base_color.png
+map_Ns C:\\Users\\desilejf\\Desktop\\UnityStuff\\DA140-Final\\Assets\\Textures\\TestTileTextures\\Material_Roughness.png
