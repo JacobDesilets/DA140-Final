@@ -27,11 +27,13 @@ public class TileDeck
     private Tile[] loadTiles()
     {
         GameObject[] objs = Resources.LoadAll<GameObject>("Tiles");
-        Tile[] t = new Tile[objs.Length];
+        //Tile[] t = new Tile[objs.Length];
+        List<Tile> t = new List<Tile>();
         int i = 0;
         foreach (GameObject o in objs)
         {
             bool isRoadEndpoint = (o.name[4] == 'Y');
+            int tileCount = o.name[5] - '0';
             string code = o.name.Substring(0, 4);
             EdgeType[] et = new EdgeType[4];
             int j = 0;
@@ -52,10 +54,13 @@ public class TileDeck
                 j++;
             }
 
-            t[i] = new Tile(et[0], et[1], et[2], et[3], o, isRoadEndpoint);
-            i++;
+            for(int k = 0; k < tileCount; k++)
+            {
+                t.Add(new Tile(et[0], et[1], et[2], et[3], o, isRoadEndpoint));
+                i++;
+            }
         }
-        return t;
+        return t.ToArray();
     }
 
     public void draw()

@@ -16,7 +16,7 @@ public class Tile
 
     public GameObject prefab;
 
-    public Feature roadFeature;
+    //public Feature roadFeature;
 
     public bool isRoadEndpoint;
 
@@ -28,7 +28,6 @@ public class Tile
         this.prefab = prefab;
         this.isRoadEndpoint = isRoadEndpoint;
 
-        roadFeature = null;
     }
 
     public Tile copy()

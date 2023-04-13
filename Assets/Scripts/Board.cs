@@ -60,29 +60,46 @@ public class Board
         // Find connected roads
         foreach(EdgeNode e in edges)
         {
+            //if(e.type == EdgeType.Road)
+            //{
+            //    if(e.connectedTo != null) { connectedRoads.Add(e.connectedTo); }
+            //}
             if(e.type == EdgeType.Road)
             {
-                if(e.connectedTo != null) { connectedRoads.Add(e.connectedTo); }
+                e.roadFeature = new Feature(EdgeType.Road, e);
+                features.Add(e.roadFeature);
+            }
+            
+            if (e.type == EdgeType.Road && e.connectedTo != null)
+            {
+                e.connectedTo.roadFeature.merge(e.roadFeature);
+                features.Remove(e.roadFeature);
             }
         }
 
         // Create new feature if no connected roads
-        if(connectedRoads.Count == 0)
+        if (connectedRoads.Count == 0)
         {
-            t.roadFeature = new Feature(EdgeType.Road, t);
-            features.Add(t.roadFeature);
-            
-        } else  // Add to existing road feature, merge if needed
-        {
-            if(connectedRoads.Count == 1)
-            {
-                connectedRoads[0].belongsToTile.roadFeature.addTile(t);
-            } else if(connectedRoads.Count == 2)
-            {
-                connectedRoads[0].belongsToTile.roadFeature.addTile(t);
-                connectedRoads[0].belongsToTile.roadFeature.merge(connectedRoads[1].belongsToTile.roadFeature);
-            }
+
         }
+
+        //// Create new feature if no connected roads
+        //if(connectedRoads.Count == 0)
+        //{
+        //    t.roadFeature = new Feature(EdgeType.Road, t);
+        //    features.Add(t.roadFeature);
+
+        //} else  // Add to existing road feature, merge if needed
+        //{
+        //    if(connectedRoads.Count == 1)
+        //    {
+        //        connectedRoads[0].belongsToTile.roadFeature.addTile(t);
+        //    } else if(connectedRoads.Count == 2)
+        //    {
+        //        connectedRoads[0].belongsToTile.roadFeature.addTile(t);
+        //        connectedRoads[0].belongsToTile.roadFeature.merge(connectedRoads[1].belongsToTile.roadFeature);
+        //    }
+        //}
 
     }
 
@@ -155,20 +172,24 @@ public class Board
 public class Feature
 {
     public EdgeType type;
-    protected List<Tile> tiles;
+    //protected List<Tile> tiles;
+    protected List<EdgeNode> edgeNodes;
     public bool complete = false;
     protected int roadEndpoints;
     protected Dictionary<int, int> claimants;
 
-    public Feature(EdgeType type, Tile initialTile)
+    public Feature(EdgeType type, EdgeNode initialEdgeNode)
     {
         this.type = type;
         roadEndpoints = 0;
 
-        tiles = new List<Tile>();
-        tiles.Add(initialTile);
+        //tiles = new List<Tile>();
+        //tiles.Add(initialTile);
 
-        if(initialTile.isRoadEndpoint) { roadEndpoints++; }
+        edgeNodes = new List<EdgeNode>();
+        edgeNodes.Add(initialEdgeNode);
+
+        if (initialEdgeNode.belongsToTile.isRoadEndpoint) { roadEndpoints++; }
         claimants = new Dictionary<int, int>();
     }
 
@@ -198,13 +219,22 @@ public class Feature
             }
         }
 
-        foreach (Tile t in other.tiles)
+        //foreach (Tile t in other.tiles)
+        //{
+        //    foreach(EdgeNode e in t.getEdges())
+        //    {
+        //        if(e.roadFeature == other)
+        //        {
+        //            e.roadFeature = this;
+        //        }
+        //    }
+        //    addTile(t);
+        //}
+
+        foreach(EdgeNode e in other.edgeNodes)
         {
-            addTile(t);
-            if (t.roadFeature != null)
-            {
-                t.roadFeature = this;
-            }
+            e.roadFeature = this;
+            addEdgeNode(e);
         }
 
 
@@ -212,32 +242,46 @@ public class Feature
 
   
 
-    public void addTile(Tile t)
+    //public void addTile(Tile t)
+    //{
+    //    // Roads
+    //    if(type == EdgeType.Road)
+    //    {
+    //        if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
+    //        tiles.Add(t);
+    //        if (t.isRoadEndpoint) { roadEndpoints++; }
+    //        t.roadFeature = this;
+            
+    //        if(complete = checkCompletion()) { Debug.Log("Feature complete!"); }
+    //    }
+        
+    //}
+
+    public void addEdgeNode(EdgeNode e)
     {
         // Roads
-        if(type == EdgeType.Road)
+        if (type == EdgeType.Road)
         {
             if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
-            tiles.Add(t);
-            if (t.isRoadEndpoint) { roadEndpoints++; }
-            t.roadFeature = this;
-            
-            if(complete = checkCompletion()) { Debug.Log("Feature complete!"); }
+            edgeNodes.Add(e);
+            if (e.belongsToTile.isRoadEndpoint) { roadEndpoints++; }
+            e.roadFeature = this;
+
+            if (complete = checkCompletion()) { Debug.Log("Feature complete!"); }
         }
-        
     }
 
-    public bool containsTile(Tile t)
-    {
-        Guid id = t.id;
+    //public bool containsTile(Tile t)
+    //{
+    //    Guid id = t.id;
 
-        foreach(Tile tile in tiles)
-        {
-            if(tile.id == id) { return true; }
-        }
+    //    foreach(Tile tile in tiles)
+    //    {
+    //        if(tile.id == id) { return true; }
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     public bool checkCompletion()
     {
