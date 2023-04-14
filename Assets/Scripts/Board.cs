@@ -13,8 +13,14 @@ public class Board
     {
         features = new List<Feature>();
         cells = new Dictionary<Vector3Int, Tile>();
+
+        // set up starting tile
         Tile startingTile = new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null, false);
         place(new Vector3Int(0, 0, 0), startingTile);
+        startingTile.getTop().roadFeature = new Feature(EdgeType.Road, startingTile.getTop());
+        startingTile.getTop().roadFeature.addEdgeNode(startingTile.getBottom());
+        startingTile.getBottom().roadFeature = startingTile.getTop().roadFeature;
+        // TODO starting tile city feature
 
         
         //features.Add(new Feature(EdgeType.Road, startingTile));
@@ -57,50 +63,38 @@ public class Board
         EdgeNode[] edges = t.getEdges();
         List<EdgeNode> connectedRoads = new List<EdgeNode>();
 
+        Feature roadFeature = null;
         // Find connected roads
         foreach(EdgeNode e in edges)
         {
-            //if(e.type == EdgeType.Road)
-            //{
-            //    if(e.connectedTo != null) { connectedRoads.Add(e.connectedTo); }
-            //}
+            if(e.type == EdgeType.Road && roadFeature == null)
+            {
+                roadFeature = new Feature(EdgeType.Road, e);
+                e.roadFeature = roadFeature;
+                break;
+            }
+        }
+
+        foreach(EdgeNode e in edges)
+        {
             if(e.type == EdgeType.Road)
             {
-                e.roadFeature = new Feature(EdgeType.Road, e);
-                features.Add(e.roadFeature);
-            }
-            
-            if (e.type == EdgeType.Road && e.connectedTo != null)
-            {
-                e.connectedTo.roadFeature.merge(e.roadFeature);
-                features.Remove(e.roadFeature);
+                // edgenode is connected
+                if (e.connectedTo != null)
+                {
+                    e.connectedTo.roadFeature.addEdgeNode(e);
+                    e.roadFeature = e.connectedTo.roadFeature;
+                } else if(!e.belongsToTile.isRoadEndpoint && roadFeature != null)  // edgenode is not connected and not road endpoint
+                {
+                    roadFeature.addEdgeNode(e);
+                    e.roadFeature = roadFeature;
+                } else if(e.belongsToTile.isRoadEndpoint)
+                {
+                    e.roadFeature = new Feature(EdgeType.Road, e);
+                    features.Add(e.roadFeature);
+                }
             }
         }
-
-        // Create new feature if no connected roads
-        if (connectedRoads.Count == 0)
-        {
-
-        }
-
-        //// Create new feature if no connected roads
-        //if(connectedRoads.Count == 0)
-        //{
-        //    t.roadFeature = new Feature(EdgeType.Road, t);
-        //    features.Add(t.roadFeature);
-
-        //} else  // Add to existing road feature, merge if needed
-        //{
-        //    if(connectedRoads.Count == 1)
-        //    {
-        //        connectedRoads[0].belongsToTile.roadFeature.addTile(t);
-        //    } else if(connectedRoads.Count == 2)
-        //    {
-        //        connectedRoads[0].belongsToTile.roadFeature.addTile(t);
-        //        connectedRoads[0].belongsToTile.roadFeature.merge(connectedRoads[1].belongsToTile.roadFeature);
-        //    }
-        //}
-
     }
 
     public bool isValidPlaceLocation(Vector3Int pos, Tile activeTile)
@@ -172,7 +166,6 @@ public class Board
 public class Feature
 {
     public EdgeType type;
-    //protected List<Tile> tiles;
     protected List<EdgeNode> edgeNodes;
     public bool complete = false;
     protected int roadEndpoints;
@@ -183,8 +176,6 @@ public class Feature
         this.type = type;
         roadEndpoints = 0;
 
-        //tiles = new List<Tile>();
-        //tiles.Add(initialTile);
 
         edgeNodes = new List<EdgeNode>();
         edgeNodes.Add(initialEdgeNode);
@@ -218,18 +209,6 @@ public class Feature
                 claimants.Add(p.Key, p.Value);
             }
         }
-
-        //foreach (Tile t in other.tiles)
-        //{
-        //    foreach(EdgeNode e in t.getEdges())
-        //    {
-        //        if(e.roadFeature == other)
-        //        {
-        //            e.roadFeature = this;
-        //        }
-        //    }
-        //    addTile(t);
-        //}
 
         foreach(EdgeNode e in other.edgeNodes)
         {
