@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     private GameObject cursor;
     private Vector3Int selectedPos;
+    private Vector3Int lastPlacedPos;
 
     void Awake()
     {
@@ -33,6 +34,7 @@ public class PlayerController : MonoBehaviour
         cursor = transform.Find("Cursor").gameObject;
 
         selectedPos = new Vector3Int(0, 0, 0);
+        lastPlacedPos = new Vector3Int(0, 0, 0);
     }
 
     void Start()
@@ -73,6 +75,8 @@ public class PlayerController : MonoBehaviour
             if(GameManager.Instance.placeTile(selectedPos))
             {
                 claimingStage = true;
+                GameManager.Instance.errorText = "";
+                lastPlacedPos = new Vector3Int(selectedPos.x, 0, selectedPos.z);
             }
 
             refreshPreviewTile();
@@ -85,13 +89,26 @@ public class PlayerController : MonoBehaviour
             {
                 
                 int edge = (int)claimAction.ReadValue<float>();
-                Debug.Log(edge);
+                //Debug.Log(edge);
                 if (edge > 0 && edge < 6)
                 {
-                    GameManager.Instance.claim(edge);
-                    claimingStage = false;
-                    GameManager.Instance.advanceTurn();
-
+                    int success = GameManager.Instance.claim(edge, lastPlacedPos);
+                    if(success == 0)
+                    {
+                        claimingStage = false;
+                        GameManager.Instance.advanceTurn();
+                        GameManager.Instance.errorText = "";
+                    } else if (success == 1)
+                    {
+                        GameManager.Instance.errorText = "You can not claim fields!";
+                    } else if (success == 2)
+                    {
+                        GameManager.Instance.errorText = "This feature is already claimed!";
+                    } else
+                    {
+                        Debug.Log(success);
+                        GameManager.Instance.errorText = "Claiming failed. Try again!";
+                    }
                 }
                 else if (edge == 6)
                 {

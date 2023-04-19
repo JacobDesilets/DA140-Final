@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
 
     public Tile previewTile;
 
+    public GameObject claimText;
+
     public int playerCount { get; private set; }
     public int turn { get; private set; }
     private int[] scores;
@@ -25,6 +27,8 @@ public class GameManager : MonoBehaviour
     private TileDeck td;
 
     private bool claimingState = false;
+
+    public string errorText = "";
 
 
     void Awake()
@@ -63,17 +67,54 @@ public class GameManager : MonoBehaviour
         meeples = new int[count];
     }
 
-    public int claim(int edge)
+    public int claim(int edge, Vector3Int pos)
     {
-        EdgeNode edgeToClaim = activeTile.getEdges()[edge-1];
+        EdgeNode edgeToClaim = board.getTile(pos).getEdges()[edge-1];
         if(edgeToClaim.type == EdgeType.Field) { return 1; }
         if(edgeToClaim.type == EdgeType.Road)
         {
-            if(edgeToClaim.roadFeature)
+            Debug.Log("Got here!");
+            if(edgeToClaim.roadFeature != null)
             {
+                Debug.Log("Got here 2!");
+                if (edgeToClaim.roadFeature.isClaimed())
+                {
+                    return 2;
+                } else
+                {
+                    Debug.Log("Got here 3!");
+                    if (edgeToClaim.roadFeature.claim(turn, 1))
+                    {
+                        Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
+                        switch (edge)
+                        {
+                            case 1:
+                                textPos.z += 0.4f;
+                                break;
+                            case 2:
+                                textPos.x += 0.4f;
+                                break;
+                            case 3:
+                                textPos.z -= 0.4f;
+                                break;
+                            case 4:
+                                textPos.x -= 0.4f;
+                                break;
+                        }
+                        GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0)) ;
+                        claimMarker.GetComponent<ClaimText>().text = $"{turn}";
 
+
+                        return 0;
+                    } else
+                    {
+                        Debug.Log("Claim returned false");
+                    }
+                }
             }
         }
+
+        return 3;
     }
 
     public string getCurrentPlayerText()

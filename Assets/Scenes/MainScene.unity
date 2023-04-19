@@ -227,6 +227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   actions: {fileID: -944628639613478452, guid: 6c853ad8e1518f149ad93a3a2eebd509, type: 3}
+  claimingStage: 0
 --- !u!1 &157207112
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +715,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 127093676}
+  pc: {fileID: 0}
   noTileObject: {fileID: 484105776}
+  claimText: {fileID: 1296529969963713739, guid: 4c86e5771daefc04b9d72d66d329ebcf, type: 3}
+  errorText: 
 --- !u!1 &1805197800
 GameObject:
   m_ObjectHideFlags: 0

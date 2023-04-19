@@ -114,6 +114,7 @@ public class Board
         if (!hasNeighbors)
         {
             Debug.Log("Invalid place location! Must be adjacent to at least one tile");
+            GameManager.Instance.errorText = "Invalid place location! Must be adjacent to at least one tile";
             return false;
         }
 
@@ -128,6 +129,7 @@ public class Board
                     //Debug.Log(i);
                     //Debug.Log($"Top: {activeTile.getTop()} Right: {activeTile.getRight()} Bottom: {activeTile.getBottom()} Left: {activeTile.getLeft()}");
                     Debug.Log($"Invalid place location! Doesn't match neighboring tile -> {neighbors[i].getRelevantEdge(i)} : {activeTile.getRelevantEdgeActive(i)}");
+                    GameManager.Instance.errorText = $"Invalid place location! Doesn't match neighboring tile -> {neighbors[i].getRelevantEdge(i)} : {activeTile.getRelevantEdgeActive(i)}";
                     return false;
                 }
                 else
@@ -138,6 +140,7 @@ public class Board
         }
 
         // Case 3: Tiles can connect
+        GameManager.Instance.errorText = "";
         return true;
 
     }
@@ -191,6 +194,12 @@ public class Feature
             claimants.Add(player, meepleCount);
             return true;
         } else { return false;  }
+    }
+
+    public bool isClaimed()
+    {
+        //Debug.Log(claimants.Count);
+        return (claimants.Count != 0);
     }
 
     public void merge(Feature other)

@@ -8,6 +8,7 @@ public class UI : MonoBehaviour
     private Label label;
     private VisualElement frame;
     private Label contextualText;
+    private Label errorText;
 
     private int playerCount;
 
@@ -22,6 +23,7 @@ public class UI : MonoBehaviour
 
         frame = rootVisualElement.Q<VisualElement>("Frame").Q<VisualElement>("TopBar");
         contextualText = rootVisualElement.Q<VisualElement>("BottomBox").Q<Label>("ContextualText");
+        errorText = rootVisualElement.Q<VisualElement>("BottomBox").Q<Label>("ErrorText");
 
     }
 
@@ -55,7 +57,6 @@ public class UI : MonoBehaviour
             if (l.name == $"Player{currentPlayer}Label") { l.style.opacity = 1f; }
             else { l.style.opacity = 0.5f; }
         }
-        //frame.Q<VisualElement>($"Player{currentPlayer}Label").style.opacity = 1;
 
         if(GameManager.Instance.pc.claimingStage)
         {
@@ -64,6 +65,9 @@ public class UI : MonoBehaviour
         {
             contextualText.text = "Place the tile!";
         }
+
+        errorText.text = GameManager.Instance.errorText;
         
+
     }
 }
