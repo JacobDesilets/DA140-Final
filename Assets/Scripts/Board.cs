@@ -219,22 +219,6 @@ public class Feature
 
     }
 
-  
-
-    //public void addTile(Tile t)
-    //{
-    //    // Roads
-    //    if(type == EdgeType.Road)
-    //    {
-    //        if (roadEndpoints == 2) { Debug.LogError("This road feature already has two endpoints. It should not be possible to extend it."); return; }
-    //        tiles.Add(t);
-    //        if (t.isRoadEndpoint) { roadEndpoints++; }
-    //        t.roadFeature = this;
-            
-    //        if(complete = checkCompletion()) { Debug.Log("Feature complete!"); }
-    //    }
-        
-    //}
 
     public void addEdgeNode(EdgeNode e)
     {
@@ -250,17 +234,6 @@ public class Feature
         }
     }
 
-    //public bool containsTile(Tile t)
-    //{
-    //    Guid id = t.id;
-
-    //    foreach(Tile tile in tiles)
-    //    {
-    //        if(tile.id == id) { return true; }
-    //    }
-
-    //    return false;
-    //}
 
     public bool checkCompletion()
     {

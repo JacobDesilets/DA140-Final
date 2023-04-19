@@ -15,7 +15,9 @@ public class PlayerController : MonoBehaviour
     private InputAction moveAction;
     private InputAction placeAction;
     private InputAction rotateAction;
+    private InputAction claimAction;
 
+    public bool claimingStage = false;
 
     private GameObject cursor;
     private Vector3Int selectedPos;
@@ -25,6 +27,7 @@ public class PlayerController : MonoBehaviour
         moveAction = actions.FindActionMap("Gameplay").FindAction("Move");
         placeAction = actions.FindActionMap("Gameplay").FindAction("Place");
         rotateAction = actions.FindActionMap("Gameplay").FindAction("Rotate");
+        claimAction = actions.FindActionMap("Gameplay").FindAction("Claim");
 
 
         cursor = transform.Find("Cursor").gameObject;
@@ -65,9 +68,40 @@ public class PlayerController : MonoBehaviour
         selectedPos.z = (int) gridCZ;
 
         // Place
-        if(placeAction.triggered)
+        if(placeAction.triggered && !claimingStage)
         {
-            GameManager.Instance.placeTile(selectedPos);
+            if(GameManager.Instance.placeTile(selectedPos))
+            {
+                claimingStage = true;
+            }
+
+            refreshPreviewTile();
+            
+        }
+
+        if(claimingStage)
+        {
+            if (claimAction.triggered)
+            {
+                
+                int edge = (int)claimAction.ReadValue<float>();
+                Debug.Log(edge);
+                if (edge > 0 && edge < 6)
+                {
+                    GameManager.Instance.claim(edge);
+                    claimingStage = false;
+                    GameManager.Instance.advanceTurn();
+
+                }
+                else if (edge == 6)
+                {
+                    claimingStage = false;
+                    GameManager.Instance.advanceTurn();
+                }
+                
+
+                
+            }
         }
 
         // Rotate

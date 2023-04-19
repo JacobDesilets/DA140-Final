@@ -19,12 +19,20 @@
                     "id": "0a701eae-a05a-4e6d-a750-196e77a31fb4",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press"
+                    "interactions": "Press(behavior=1)"
                 },
                 {
                     "name": "Rotate",
                     "type": "Button",
                     "id": "394b8676-7fb5-483f-9016-30a9f438c717",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press"
+                },
+                {
+                    "name": "Claim",
+                    "type": "Button",
+                    "id": "28c65891-ad7a-446f-8343-76b6cfc520ae",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Press"
@@ -105,6 +113,61 @@
                     "processors": "",
                     "groups": "",
                     "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7dba20bb-bf32-4540-9478-8968870d8405",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "Scale",
+                    "groups": "",
+                    "action": "Claim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7cb7c6a4-db2a-4560-9c3b-9c6b8170dd88",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "Scale(factor=2)",
+                    "groups": "",
+                    "action": "Claim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a16e111f-a938-4658-9778-799599a00d73",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "Scale(factor=3)",
+                    "groups": "",
+                    "action": "Claim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08e76693-5d13-4d73-a94d-1ebcda5b64e6",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "Scale(factor=4)",
+                    "groups": "",
+                    "action": "Claim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d8e201bb-d14b-4428-b269-cc61b98f921b",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "Scale(factor=6)",
+                    "groups": "",
+                    "action": "Claim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

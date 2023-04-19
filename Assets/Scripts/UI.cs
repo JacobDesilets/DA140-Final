@@ -7,6 +7,7 @@ public class UI : MonoBehaviour
 {
     private Label label;
     private VisualElement frame;
+    private Label contextualText;
 
     private int playerCount;
 
@@ -20,7 +21,8 @@ public class UI : MonoBehaviour
         var rootVisualElement = uiDocument.rootVisualElement;
 
         frame = rootVisualElement.Q<VisualElement>("Frame").Q<VisualElement>("TopBar");
-        
+        contextualText = rootVisualElement.Q<VisualElement>("BottomBox").Q<Label>("ContextualText");
+
     }
 
     void Awake()
@@ -54,6 +56,14 @@ public class UI : MonoBehaviour
             else { l.style.opacity = 0.5f; }
         }
         //frame.Q<VisualElement>($"Player{currentPlayer}Label").style.opacity = 1;
+
+        if(GameManager.Instance.pc.claimingStage)
+        {
+            contextualText.text = "Press 1-4 to claim edge features (clockwise). Press space to skip";
+        } else
+        {
+            contextualText.text = "Place the tile!";
+        }
         
     }
 }

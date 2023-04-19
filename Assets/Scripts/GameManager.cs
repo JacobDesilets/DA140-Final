@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
 
     public GameObject player;
-    private PlayerController pc;
+    public PlayerController pc;
 
     public GameObject noTileObject;
 
@@ -19,9 +19,12 @@ public class GameManager : MonoBehaviour
     public int playerCount { get; private set; }
     public int turn { get; private set; }
     private int[] scores;
+    private int[] meeples;
 
     private Board board;
     private TileDeck td;
+
+    private bool claimingState = false;
 
 
     void Awake()
@@ -57,6 +60,20 @@ public class GameManager : MonoBehaviour
     {
         playerCount = count;
         scores = new int[count];
+        meeples = new int[count];
+    }
+
+    public int claim(int edge)
+    {
+        EdgeNode edgeToClaim = activeTile.getEdges()[edge-1];
+        if(edgeToClaim.type == EdgeType.Field) { return 1; }
+        if(edgeToClaim.type == EdgeType.Road)
+        {
+            if(edgeToClaim.roadFeature)
+            {
+
+            }
+        }
     }
 
     public string getCurrentPlayerText()
@@ -68,6 +85,22 @@ public class GameManager : MonoBehaviour
     {
         turn++;
         if(turn > playerCount) { turn = 1; }
+
+        td.draw();
+        if (!td.finished)
+        {
+            activeTile = td.currentTile;
+            previewTile = activeTile;
+
+
+        }
+        else
+        {
+            Debug.Log("Finished");
+            previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
+        }
+
+        pc.refreshPreviewTile();
     }
 
     public GameObject getPreviewTileObject(Vector3 pos)
@@ -91,29 +124,16 @@ public class GameManager : MonoBehaviour
         return scores[player - 1];
     }
 
-    public void placeTile(Vector3Int pos)
+    public bool placeTile(Vector3Int pos)
     {
-        if(td.finished) { return; }
-        if(!board.isValidPlaceLocation(pos, activeTile)) { return; }
+        if(td.finished) { return false; }
+        if(!board.isValidPlaceLocation(pos, activeTile)) { return false; }
         Tile newTile = activeTile.copy();
         Debug.Log("Place!");
         board.place(pos, newTile);
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
-
-        td.draw();
-        advanceTurn();
-        if (!td.finished)
-        {
-            activeTile = td.currentTile;
-            previewTile = activeTile;
-
-            
-        } else { 
-            Debug.Log("Finished");
-            previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
-        }
-
-        pc.refreshPreviewTile();
+        previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
+        return true;
     }
 
     // Start is called before the first frame update
