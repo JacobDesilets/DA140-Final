@@ -1,4 +1,3 @@
-
 public class EdgeNode
 {
     public EdgeType type;

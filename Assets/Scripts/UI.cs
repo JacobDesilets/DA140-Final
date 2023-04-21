@@ -52,13 +52,22 @@ public class UI : MonoBehaviour
     void Update()
     {
         int currentPlayer = GameManager.Instance.turn;
-        foreach(VisualElement l in playerLabels)
+        //foreach(VisualElement l in playerLabels)
+        //{
+        //    l.Q<Label>("PlayerInfo").text = $"Player {i}: {GameManager.Instance.getScore(i)} points";
+        //    if (l.name == $"Player{currentPlayer}Label") { l.style.opacity = 1f; }
+        //    else { l.style.opacity = 0.5f; }
+        //}
+
+        for (int i = 1; i <= playerCount; i++)
         {
+            var l = playerLabels[i-1];
             if (l.name == $"Player{currentPlayer}Label") { l.style.opacity = 1f; }
             else { l.style.opacity = 0.5f; }
+            l.Q<Label>("PlayerInfo").text = $"Player {i}: {GameManager.Instance.getScore(i)} points";
         }
 
-        if(GameManager.Instance.pc.claimingStage)
+        if (GameManager.Instance.pc.claimingStage)
         {
             contextualText.text = "Press 1-4 to claim edge features (clockwise). Press space to skip";
         } else

@@ -26,8 +26,6 @@ public class GameManager : MonoBehaviour
     private Board board;
     private TileDeck td;
 
-    private bool claimingState = false;
-
     public string errorText = "";
 
 
@@ -73,16 +71,13 @@ public class GameManager : MonoBehaviour
         if(edgeToClaim.type == EdgeType.Field) { return 1; }
         if(edgeToClaim.type == EdgeType.Road)
         {
-            Debug.Log("Got here!");
             if(edgeToClaim.roadFeature != null)
             {
-                Debug.Log("Got here 2!");
                 if (edgeToClaim.roadFeature.isClaimed())
                 {
                     return 2;
                 } else
                 {
-                    Debug.Log("Got here 3!");
                     if (edgeToClaim.roadFeature.claim(turn, 1))
                     {
                         Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
@@ -111,8 +106,8 @@ public class GameManager : MonoBehaviour
                         Debug.Log("Claim returned false");
                     }
                 }
-            }
-        }
+            } else { Debug.Log("road feature is null"); }
+        } 
 
         return 3;
     }
@@ -140,6 +135,10 @@ public class GameManager : MonoBehaviour
             Debug.Log("Finished");
             previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
         }
+
+        int[] newScores = board.getScores();
+        scores = newScores;
+        Debug.Log(string.Join(" ", scores));
 
         pc.refreshPreviewTile();
     }

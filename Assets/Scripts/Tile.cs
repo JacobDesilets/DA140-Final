@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 
 
-public class Tile
+public class Tile : IEquatable<Tile>
 {
     public Guid id;
 
@@ -28,6 +28,11 @@ public class Tile
         this.prefab = prefab;
         this.isRoadEndpoint = isRoadEndpoint;
 
+    }
+
+    public bool Equals(Tile t)
+    {
+        return id == t.id;
     }
 
     public Tile copy()
