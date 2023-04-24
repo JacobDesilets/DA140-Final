@@ -71,43 +71,65 @@ public class GameManager : MonoBehaviour
         if(edgeToClaim.type == EdgeType.Field) { return 1; }
         if(edgeToClaim.type == EdgeType.Road)
         {
-            if(edgeToClaim.roadFeature != null)
+            //    if(edgeToClaim.roadFeature != null)
+            //    {
+            //        if (edgeToClaim.roadFeature.isClaimed())
+            //        {
+            //            return 2;
+            //        } else
+            //        {
+            //            if (edgeToClaim.roadFeature.claim(turn, 1))
+            //            {
+            //                Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
+            //                switch (edge)
+            //                {
+            //                    case 1:
+            //                        textPos.z += 0.4f;
+            //                        break;
+            //                    case 2:
+            //                        textPos.x += 0.4f;
+            //                        break;
+            //                    case 3:
+            //                        textPos.z -= 0.4f;
+            //                        break;
+            //                    case 4:
+            //                        textPos.x -= 0.4f;
+            //                        break;
+            //                }
+            //                GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0)) ;
+            //                claimMarker.GetComponent<ClaimText>().text = $"{turn}";
+
+
+            //                return 0;
+            //            } else
+            //            {
+            //                Debug.Log("Claim returned false");
+            //            }
+            //        }
+            //    } else { Debug.Log("road feature is null"); }
+            edgeToClaim.claimant = turn;
+            Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
+            switch (edge)
             {
-                if (edgeToClaim.roadFeature.isClaimed())
-                {
-                    return 2;
-                } else
-                {
-                    if (edgeToClaim.roadFeature.claim(turn, 1))
-                    {
-                        Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
-                        switch (edge)
-                        {
-                            case 1:
-                                textPos.z += 0.4f;
-                                break;
-                            case 2:
-                                textPos.x += 0.4f;
-                                break;
-                            case 3:
-                                textPos.z -= 0.4f;
-                                break;
-                            case 4:
-                                textPos.x -= 0.4f;
-                                break;
-                        }
-                        GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0)) ;
-                        claimMarker.GetComponent<ClaimText>().text = $"{turn}";
-
-
-                        return 0;
-                    } else
-                    {
-                        Debug.Log("Claim returned false");
-                    }
-                }
-            } else { Debug.Log("road feature is null"); }
+                case 1:
+                    textPos.z += 0.4f;
+                    break;
+                case 2:
+                    textPos.x += 0.4f;
+                    break;
+                case 3:
+                    textPos.z -= 0.4f;
+                    break;
+                case 4:
+                    textPos.x -= 0.4f;
+                    break;
+            }
+            GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0));
+            claimMarker.GetComponent<ClaimText>().text = $"{turn}";
+            return 0;
         } 
+
+            
 
         return 3;
     }
@@ -136,11 +158,16 @@ public class GameManager : MonoBehaviour
             previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
         }
 
-        int[] newScores = board.getScores();
-        scores = newScores;
-        Debug.Log(string.Join(" ", scores));
+        //int[] newScores = board.getScores();
+        //scores = newScores;
+        //Debug.Log(string.Join(" ", scores));
 
         pc.refreshPreviewTile();
+    }
+
+    public void addScore(int score)
+    {
+        scores[turn - 1] += score;
     }
 
     public GameObject getPreviewTileObject(Vector3 pos)

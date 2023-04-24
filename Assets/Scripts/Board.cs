@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using UnityEngine.Assertions;
 
 
@@ -54,57 +55,128 @@ public class Board
 
 
         // Update features
-        updateRoadFeatures(t);
+        Feature f = updateRoadFeatures(t);
+        if(f.checkCompletion())
+        {
+            int score = f.getScore();
+            GameManager.Instance.addScore(score);
+        }
 
     }
 
-    public void updateRoadFeatures(Tile t)
+    
+
+    public Feature updateRoadFeatures(Tile t)
     {
-        //Debug.Log(t == null);
-        EdgeNode[] edges = t.getEdges();
-        List<EdgeNode> connectedRoads = new List<EdgeNode>();
-
-        Feature roadFeature = null;
-
-
-        foreach (EdgeNode e in edges)
+        int claimaint = 0;
+        List<EdgeNode> connected = new List<EdgeNode>();
+        List<EdgeNode> unexplored;
+        EdgeNode startRoad = null;
+        // find connected sides
+        // find the first road to start with
+        foreach(EdgeNode e in t.getEdges())
         {
             if(e.type == EdgeType.Road)
             {
-                // edgenode is connected
-                if (e.connectedTo != null)
+                if (e.claimant != 0 && claimaint == 0) { claimaint = e.claimant; }
+
+                if(startRoad == null)
                 {
-                    e.connectedTo.roadFeature.addEdgeNode(e);
-                    //e.roadFeature = e.connectedTo.roadFeature;
-                    e.connectedTo.roadFeature.addEdgeNode(e);
-                    roadFeature = e.roadFeature;
-                    
-                } else if(!e.belongsToTile.isRoadEndpoint && roadFeature != null)  // edgenode is not connected and not road endpoint
+                    startRoad = e;
+                    connected.Add(e);
+                } else if (!e.belongsToTile.isRoadEndpoint)
                 {
-                    roadFeature.addEdgeNode(e);
-                    //e.roadFeature = roadFeature;
-                } else if(e.belongsToTile.isRoadEndpoint)
-                {
-                    e.roadFeature = new Feature(EdgeType.Road, e);
-                    features.Add(e.roadFeature);
+                    connected.Add(e);
                 }
             }
         }
+        if (startRoad == null) { Debug.Log("Error: tile contains no roads"); }
+        unexplored = findAdjacentEdges(connected);
 
-        //Find connected roads
-        foreach (EdgeNode e in edges)
+        
+
+        while(unexplored.Count != 0)
         {
-            if (e.type == EdgeType.Road && e.roadFeature == null && roadFeature != null)
+            EdgeNode toExplore = unexplored[0];
+            unexplored.RemoveAt(0);
+
+            
+            connected.Add(toExplore);
+            if (toExplore.claimant != 0 && claimaint == 0) { claimaint = toExplore.claimant; }
+            List<EdgeNode> new_unexplored = findAdjacentEdges(connected);
+
+            unexplored = (List<EdgeNode>) unexplored.Union(new_unexplored);
+        }
+
+        return new Feature(EdgeType.Road, connected, claimaint);
+
+
+
+
+        ////Debug.Log(t == null);
+        //EdgeNode[] edges = t.getEdges();
+        //List<EdgeNode> connectedRoads = new List<EdgeNode>();
+
+        //Feature roadFeature = null;
+
+
+        //foreach (EdgeNode e in edges)
+        //{
+        //    if(e.type == EdgeType.Road)
+        //    {
+        //        // edgenode is connected
+        //        if (e.connectedTo != null)
+        //        {
+        //            e.connectedTo.roadFeature.addEdgeNode(e);
+        //            //e.roadFeature = e.connectedTo.roadFeature;
+        //            e.connectedTo.roadFeature.addEdgeNode(e);
+        //            roadFeature = e.roadFeature;
+                    
+        //        } else if(!e.belongsToTile.isRoadEndpoint && roadFeature != null)  // edgenode is not connected and not road endpoint
+        //        {
+        //            roadFeature.addEdgeNode(e);
+        //            //e.roadFeature = roadFeature;
+        //        } else if(e.belongsToTile.isRoadEndpoint)
+        //        {
+        //            e.roadFeature = new Feature(EdgeType.Road, e);
+        //            features.Add(e.roadFeature);
+        //        }
+        //    }
+        //}
+
+        ////Find connected roads
+        //foreach (EdgeNode e in edges)
+        //{
+        //    if (e.type == EdgeType.Road && e.roadFeature == null && roadFeature != null)
+        //    {
+        //        //roadFeature = new Feature(EdgeType.Road, e);
+        //        //e.roadFeature = roadFeature;
+        //        //break;
+        //        //roadFeature.addEdgeNode(e);
+        //        e.roadFeature = roadFeature;
+                
+        //    }
+        //}
+        
+    }
+
+    public List<EdgeNode> findAdjacentEdges(List<EdgeNode> connected)
+    {
+        List<EdgeNode> adj = new List<EdgeNode>();
+        foreach(EdgeNode e in connected)
+        {
+            if(e.connectedTo != null && !adj.Contains(e.connectedTo) && !connected.Contains(e.connectedTo))
             {
-                //roadFeature = new Feature(EdgeType.Road, e);
-                //e.roadFeature = roadFeature;
-                //break;
-                //roadFeature.addEdgeNode(e);
-                e.roadFeature = roadFeature;
+                if(e.type == EdgeType.Road && !e.belongsToTile.isRoadEndpoint)
+                {
+                    adj.Add(e.connectedTo);
+                }
                 
             }
         }
-        
+
+        return adj;
+
     }
 
     public int[] getScores()
@@ -219,6 +291,21 @@ public class Feature
         claimant = 0;
     }
 
+    public Feature(EdgeType type, List<EdgeNode> l, int claimaint)
+    {
+        this.type = type;
+        edgeNodes = l;
+
+        tiles = new List<Tile>();
+
+        foreach (EdgeNode e in edgeNodes.ToList())
+        {
+            addEdgeNode(e);
+        }
+
+        this.claimant = claimant;
+    }
+
     public int getNumMembers()
     {
         return edgeNodes.Count;
@@ -289,11 +376,11 @@ public class Feature
     }
 
 
+
     public bool checkCompletion()
     {
         if(type == EdgeType.Road)
         {
-            Debug.Log($"Updated road feature now has: {getNumMembers()} edges");
             return (roadEndpoints == 2);
         }
 

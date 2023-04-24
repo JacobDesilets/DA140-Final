@@ -146,5 +146,4 @@ public class Tile : IEquatable<Tile>
         return qrot * prefab.transform.localRotation;
     }
 
-
 }
