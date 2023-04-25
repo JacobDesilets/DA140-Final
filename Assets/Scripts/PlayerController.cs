@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     private Vector3Int selectedPos;
     private Vector3Int lastPlacedPos;
 
+    private bool lockCursor = false;
+
     void Awake()
     {
         moveAction = actions.FindActionMap("Gameplay").FindAction("Move");
@@ -40,6 +42,21 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
+
+        Vector2 moveInputVector = moveAction.ReadValue<Vector2>();
+        Vector3 moveVector = new Vector3(moveInputVector.x, 0, moveInputVector.y) * moveSpeed;
+
+        transform.Translate(moveVector * Time.deltaTime);
+
+        float cX = cursor.transform.position.x;
+        float cZ = cursor.transform.position.z;
+
+        int gridCX = (int)Mathf.RoundToInt(cX / Settings.gridSize);
+        int gridCZ = (int)Mathf.RoundToInt(cZ / Settings.gridSize);
+
+
+        Vector3 gridPos = new Vector3(gridCX, 0.25f, gridCZ);
+        cursorVisual.transform.localPosition = gridPos;
     }
 
     public void refreshPreviewTile()
@@ -63,28 +80,26 @@ public class PlayerController : MonoBehaviour
         int gridCX = (int)Mathf.RoundToInt(cX / Settings.gridSize);
         int gridCZ = (int)Mathf.RoundToInt(cZ / Settings.gridSize);
 
-        Vector3 gridPos = new Vector3(gridCX, 0.25f, gridCZ);
-        cursorVisual.transform.localPosition = gridPos;
+        if(!lockCursor)
+        {
+            Vector3 gridPos = new Vector3(gridCX, 0.25f, gridCZ);
+            cursorVisual.transform.localPosition = gridPos;
 
-        selectedPos.x = (int) gridCX;
-        selectedPos.z = (int) gridCZ;
+            selectedPos.x = (int)gridCX;
+            selectedPos.z = (int)gridCZ;
+        }
+        
 
         // Place
         if(placeAction.triggered && !claimingStage)
         {
-            if(GameManager.Instance.placeTile(selectedPos))
-            {
-                claimingStage = true;
-                GameManager.Instance.errorText = "";
-                lastPlacedPos = new Vector3Int(selectedPos.x, 0, selectedPos.z);
-            }
-
-            refreshPreviewTile();
+            claimingStage = true;
             
         }
 
         if(claimingStage)
         {
+            lockCursor = true;
             if (claimAction.triggered)
             {
                 
@@ -95,6 +110,7 @@ public class PlayerController : MonoBehaviour
                     int success = GameManager.Instance.claim(edge, lastPlacedPos);
                     if(success == 0)
                     {
+                        lockCursor = false;
                         claimingStage = false;
                         GameManager.Instance.advanceTurn();
                         GameManager.Instance.errorText = "";
@@ -112,12 +128,21 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (edge == 6)
                 {
+                    lockCursor = false;
                     claimingStage = false;
                     GameManager.Instance.advanceTurn();
                 }
-                
 
-                
+                if (GameManager.Instance.placeTile(selectedPos))
+                {
+                    claimingStage = true;
+                    GameManager.Instance.errorText = "";
+                    lastPlacedPos = new Vector3Int(selectedPos.x, 0, selectedPos.z);
+                }
+
+                refreshPreviewTile();
+
+
             }
         }
 

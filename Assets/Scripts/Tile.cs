@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-
+using System.Collections.Generic;
 
 public class Tile : IEquatable<Tile>
 {
@@ -45,6 +45,19 @@ public class Tile : IEquatable<Tile>
         newTile.leftIndex = leftIndex;
 
         return newTile;
+    }
+
+    public List<EdgeNode> getLocalRoads()
+    {
+        List<EdgeNode> localRoads = new List<EdgeNode>();
+        if(!isRoadEndpoint)
+        {
+            foreach(EdgeNode e in edges)
+            {
+                if(e.type == EdgeType.Road) { localRoads.Add(e); }
+            }
+        }
+        return localRoads;
     }
 
     public EdgeNode getTop()

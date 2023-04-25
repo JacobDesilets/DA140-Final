@@ -5,7 +5,7 @@ public class EdgeNode : IEquatable<EdgeNode>
     public EdgeType type;
     public Tile belongsToTile { get; private set; }
     public EdgeNode connectedTo { get; set; }
-    public Feature roadFeature { get; set; }
+    // public Feature roadFeature { get; set; }
     public int claimant = 0;
 
     public Guid id;
@@ -15,7 +15,8 @@ public class EdgeNode : IEquatable<EdgeNode>
         this.type = type;
         this.belongsToTile = belongsToTile;
         this.connectedTo = null;
-        this.roadFeature = null;
+        id = Guid.NewGuid();
+        //this.roadFeature = null;
     }
 
     public bool Equals(EdgeNode e)

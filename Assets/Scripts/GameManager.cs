@@ -197,6 +197,7 @@ public class GameManager : MonoBehaviour
         if(!board.isValidPlaceLocation(pos, activeTile)) { return false; }
         Tile newTile = activeTile.copy();
         Debug.Log("Place!");
+
         board.place(pos, newTile);
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
         previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
