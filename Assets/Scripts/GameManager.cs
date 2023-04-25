@@ -67,46 +67,12 @@ public class GameManager : MonoBehaviour
 
     public int claim(int edge, Vector3Int pos)
     {
-        EdgeNode edgeToClaim = board.getTile(pos).getEdges()[edge-1];
-        if(edgeToClaim.type == EdgeType.Field) { return 1; }
+        //EdgeNode edgeToClaim = board.getTile(pos).getEdges()[edge-1];
+        EdgeNode edgeToClaim = activeTile.getEdges()[edge - 1];
+        if(!board.canClaim(edgeToClaim)) { errorText = "This feature is already claimed!"; return 2; }
+        if(edgeToClaim.type == EdgeType.Field) { errorText = "You can not claim fields in this version of the game."; return 1; }
         if(edgeToClaim.type == EdgeType.Road)
         {
-            //    if(edgeToClaim.roadFeature != null)
-            //    {
-            //        if (edgeToClaim.roadFeature.isClaimed())
-            //        {
-            //            return 2;
-            //        } else
-            //        {
-            //            if (edgeToClaim.roadFeature.claim(turn, 1))
-            //            {
-            //                Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
-            //                switch (edge)
-            //                {
-            //                    case 1:
-            //                        textPos.z += 0.4f;
-            //                        break;
-            //                    case 2:
-            //                        textPos.x += 0.4f;
-            //                        break;
-            //                    case 3:
-            //                        textPos.z -= 0.4f;
-            //                        break;
-            //                    case 4:
-            //                        textPos.x -= 0.4f;
-            //                        break;
-            //                }
-            //                GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0)) ;
-            //                claimMarker.GetComponent<ClaimText>().text = $"{turn}";
-
-
-            //                return 0;
-            //            } else
-            //            {
-            //                Debug.Log("Claim returned false");
-            //            }
-            //        }
-            //    } else { Debug.Log("road feature is null"); }
             edgeToClaim.claimant = turn;
             Vector3 textPos = new Vector3(pos.x, .3f, pos.z);
             switch (edge)
@@ -126,6 +92,11 @@ public class GameManager : MonoBehaviour
             }
             GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0));
             claimMarker.GetComponent<ClaimText>().text = $"{turn}";
+
+            Tile newTile = activeTile.copy();
+            board.place(pos, newTile, turn, edgeToClaim);
+            advanceTurn();
+
             return 0;
         } 
 
@@ -191,16 +162,15 @@ public class GameManager : MonoBehaviour
         return scores[player - 1];
     }
 
-    public bool placeTile(Vector3Int pos)
+    public bool beginPlaceTile(Vector3Int pos)
     {
-        if(td.finished) { return false; }
-        if(!board.isValidPlaceLocation(pos, activeTile)) { return false; }
-        Tile newTile = activeTile.copy();
-        Debug.Log("Place!");
+        if (td.finished) { return false; }
+        if (!board.isValidPlaceLocation(pos, activeTile)) { return false; }
 
-        board.place(pos, newTile);
+        Tile newTile = activeTile.copy();
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
         previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
+        errorText = "";
         return true;
     }
 

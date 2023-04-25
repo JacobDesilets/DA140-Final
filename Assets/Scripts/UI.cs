@@ -69,7 +69,7 @@ public class UI : MonoBehaviour
 
         if (GameManager.Instance.pc.claimingStage)
         {
-            contextualText.text = "Press 1-4 to claim edge features (clockwise). Press space to skip";
+            contextualText.text = "Press 1-4 to claim edge features (clockwise). Press 5 to skip";
         } else
         {
             contextualText.text = "Place the tile!";

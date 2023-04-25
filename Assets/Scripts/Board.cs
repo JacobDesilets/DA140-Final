@@ -17,21 +17,12 @@ public class Board
 
         // set up starting tile
         Tile startingTile = new Tile(EdgeType.Road, EdgeType.City, EdgeType.Road, EdgeType.Field, null, false);
-        place(new Vector3Int(0, 0, 0), startingTile);
-        //startingTile.getTop().roadFeature = new Feature(EdgeType.Road, startingTile.getTop());
-        //startingTile.getTop().roadFeature.addEdgeNode(startingTile.getBottom());
-        //startingTile.getBottom().roadFeature = startingTile.getTop().roadFeature;
-        //features.Add(startingTile.getBottom().roadFeature);
-        // TODO starting tile city feature
-
-        
-        //features.Add(new Feature(EdgeType.Road, startingTile));
-        //features.Add(new Feature(EdgeType.City, startingTile));
+        place(new Vector3Int(0, 0, 0), startingTile, 0, null);
     }
 
 
 
-    public void place(Vector3Int pos, Tile t)
+    public void place(Vector3Int pos, Tile t, int claimant, EdgeNode claimedEdge)
     {
         cells.Add(pos, t);
 
@@ -53,22 +44,13 @@ public class Board
             }
         }
 
-
-        // Update features
-        //Feature f = updateRoadFeatures(t);
-        //if(f.checkCompletion())
-        //{
-        //    int score = f.getScore();
-        //    GameManager.Instance.addScore(score);
-        //}
-        updateRoadFeatures(t);
+        updateRoadFeatures(t, claimant, claimedEdge);
     }
 
     
-
-    public void updateRoadFeatures(Tile t)
+    // returns player who has the claim - null if none, string of numbers if tied
+    public void updateRoadFeatures(Tile t, int claimant, EdgeNode claimedEdge)
     {
-        
 
         List<EdgeNode> roadsToDo = new List<EdgeNode>();
         foreach (EdgeNode e in t.getEdges())
@@ -85,36 +67,84 @@ public class Board
 
         while(roadsToDo.Count > 0)
         {
-            int claimaint = 0;
-            List<int> meepleCount = new List<int>();
-            List<EdgeNode> connected = new List<EdgeNode>();
-            List<EdgeNode> unexplored;
+            Dictionary<int, int> meeples = new Dictionary<int, int>();
+
+            
 
             EdgeNode currentRoad = roadsToDo[0];
-            roadsToDo.RemoveAt(0);
-
-            if(!t.isRoadEndpoint) { connected = t.getLocalRoads(); }
-            else { connected.Add(currentRoad); }
-
-            unexplored = findAdjacentEdges(connected);
-
-            while (unexplored.Count != 0)
+            if(claimant != 0 && currentRoad.Equals(claimedEdge))
             {
-                EdgeNode toExplore = unexplored[0];
-                unexplored.RemoveAt(0);
-
-
-                connected.Add(toExplore);
-                //if (toExplore.claimant != 0 && claimaint == 0) { claimaint = toExplore.claimant; }
-                List<EdgeNode> new_unexplored = findAdjacentEdges(connected);
-
-                unexplored = new List<EdgeNode>(unexplored.Union(new_unexplored));
-                Debug.Log($"Unexplored count: {unexplored.Count}");
+                meeples[claimant] = 1;
+                currentRoad.claimant = claimant;
             }
 
-            Feature f = new Feature(EdgeType.Road, connected, claimaint);
-            Debug.Log($"Found road with {f.numUniqueTiles()} tiles");
+            roadsToDo.RemoveAt(0);
+
+            Feature f = exploreRoad(currentRoad, claimant);
         }
+    }
+
+    public Feature exploreRoad(EdgeNode e, int claimant)
+    {
+        Dictionary<int, int> meeples = new Dictionary<int, int>();
+        List<EdgeNode> connected = new List<EdgeNode>();
+        List<EdgeNode> unexplored;
+        List<int> claimants = new List<int>();
+
+        int c1;
+        meeples.TryGetValue(e.claimant, out c1);
+        meeples[claimant] = c1 + 1;
+
+
+        e.claimant = claimant;
+
+        if (!e.belongsToTile.isRoadEndpoint) { connected = e.belongsToTile.getLocalRoads(); }
+        else { connected.Add(e); }
+
+        unexplored = findAdjacentEdges(connected);
+
+        while (unexplored.Count != 0)
+        {
+            EdgeNode toExplore = unexplored[0];
+            unexplored.RemoveAt(0);
+
+            if (toExplore.claimant != 0)
+            {
+                int c2;
+                meeples.TryGetValue(toExplore.claimant, out c2);
+                meeples[toExplore.claimant] = c2 + 1;
+            }
+
+            connected.Add(toExplore);
+            //if (toExplore.claimant != 0 && claimaint == 0) { claimaint = toExplore.claimant; }
+            List<EdgeNode> new_unexplored = findAdjacentEdges(connected);
+
+            unexplored = new List<EdgeNode>(unexplored.Union(new_unexplored));
+            Debug.Log($"Unexplored count: {unexplored.Count}");
+        }
+
+        
+        
+
+        int max = meeples.FirstOrDefault(x => x.Value == meeples.Values.Max()).Key;
+        foreach(var KVP in meeples)
+        {
+            if(KVP.Value == max)
+            {
+                claimants.Add(KVP.Key);
+            }
+        }
+
+        Feature f = new Feature(EdgeType.Road, connected, claimants);
+        Debug.Log($"Found road with {f.numUniqueTiles()} tiles");
+        return f;
+    }
+
+    public bool canClaim(EdgeNode e)
+    {
+        Feature testFeature = exploreRoad(e, 0);
+        if(testFeature.claimants.Count > 1) { return false; }
+        return true;
     }
 
     public List<EdgeNode> findAdjacentEdges(List<EdgeNode> connected)
@@ -155,16 +185,6 @@ public class Board
     {
         Debug.Log("Checking scores!");
         int[] scores = new int[GameManager.Instance.playerCount];
-        //foreach (Feature f in features)
-        //{
-        //    if (f.isClaimed())
-        //    {
-        //        int k = f.claimant;
-        //        int v = f.getScore();
-        //        scores[k - 1] = v;
-        //    }
-        //}
-
         Debug.Log(scores.Length);
         return scores;
     }
@@ -245,25 +265,10 @@ public class Feature
     protected List<Tile> tiles;
     public bool complete = false;
     protected int roadEndpoints;
-    //protected Dictionary<int, int> claimants;
-    public int claimant { get; private set; }
-
-    //public Feature(EdgeType type, EdgeNode initialEdgeNode)
-    //{
-    //    this.type = type;
-    //    roadEndpoints = 0;
+    public List<int> claimants;
 
 
-    //    edgeNodes = new List<EdgeNode>();
-    //    edgeNodes.Add(initialEdgeNode);
-
-    //    tiles = new List<Tile>();
-
-    //    if (initialEdgeNode.belongsToTile.isRoadEndpoint) { roadEndpoints++; }
-    //    claimant = 0;
-    //}
-
-    public Feature(EdgeType type, List<EdgeNode> l, int claimaint)
+    public Feature(EdgeType type, List<EdgeNode> l, List<int> claimants)
     {
         this.type = type;
         edgeNodes = l;
@@ -275,29 +280,13 @@ public class Feature
             addEdgeNode(e);
         }
 
-        this.claimant = claimant;
+        this.claimants = claimants;
     }
 
     public int getNumMembers()
     {
         return edgeNodes.Count;
     }
-
-    //public bool claim(int player, int meepleCount)
-    //{
-    //    if (claimant == 0)
-    //    {
-    //        claimant = player;
-    //        return true;
-    //    }
-    //    else { return false; }
-    //}
-
-    //public bool isClaimed()
-    //{
-    //    //Debug.Log(claimants.Count);
-    //    return (claimant != 0);
-    //}
 
     public int getScore()
     {
