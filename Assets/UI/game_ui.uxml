@@ -3,7 +3,7 @@
         <ui:VisualElement name="TopBar" style="flex-direction: row;" />
     </ui:VisualElement>
     <ui:VisualElement name="BottomBox">
-        <ui:Label text="Label" display-tooltip-when-elided="true" name="ErrorText" style="color: rgba(255, 0, 0, 255); -unity-text-outline-width: 0;" />
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="ErrorText" style="color: rgb(255, 0, 0); -unity-text-outline-width: 0;" />
         <ui:Label text="Label" display-tooltip-when-elided="true" name="ContextualText" />
     </ui:VisualElement>
 </ui:UXML>

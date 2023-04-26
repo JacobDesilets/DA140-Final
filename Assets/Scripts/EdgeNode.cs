@@ -21,7 +21,7 @@ public class EdgeNode : IEquatable<EdgeNode>
 
     public bool Equals(EdgeNode e)
     {
-        return id == e.id;
+        return id.Equals(e.id);
     }
 
     public bool match(EdgeNode other)

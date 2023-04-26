@@ -67,10 +67,10 @@ public class GameManager : MonoBehaviour
 
     public int claim(int edge, Vector3Int pos)
     {
-        //EdgeNode edgeToClaim = board.getTile(pos).getEdges()[edge-1];
         EdgeNode edgeToClaim = activeTile.getEdges()[edge - 1];
-        if(!board.canClaim(edgeToClaim)) { errorText = "This feature is already claimed!"; return 2; }
-        if(edgeToClaim.type == EdgeType.Field) { errorText = "You can not claim fields in this version of the game."; return 1; }
+        if (edgeToClaim.type == EdgeType.Field) { errorText = "You can not claim fields in this version of the game."; return 1; }
+        if (board.isRoadClaimed(edgeToClaim)) { errorText = "This feature is already claimed!"; return 2; }
+        
         if(edgeToClaim.type == EdgeType.Road)
         {
             edgeToClaim.claimant = turn;
@@ -93,8 +93,7 @@ public class GameManager : MonoBehaviour
             GameObject claimMarker = Instantiate(claimText, textPos, Quaternion.Euler(90, 0, 0));
             claimMarker.GetComponent<ClaimText>().text = $"{turn}";
 
-            Tile newTile = activeTile.copy();
-            board.place(pos, newTile, turn, edgeToClaim);
+            board.claimRoad(edgeToClaim, turn);
             advanceTurn();
 
             return 0;
@@ -136,9 +135,9 @@ public class GameManager : MonoBehaviour
         pc.refreshPreviewTile();
     }
 
-    public void addScore(int score)
+    public void addScore(int score, int player)
     {
-        scores[turn - 1] += score;
+        if(player != 0) scores[player-1] += score;
     }
 
     public GameObject getPreviewTileObject(Vector3 pos)
@@ -171,6 +170,8 @@ public class GameManager : MonoBehaviour
         Instantiate(newTile.prefab, pos, activeTile.getRotation());
         previewTile = new Tile(EdgeType.Field, EdgeType.Field, EdgeType.Field, EdgeType.Field, noTileObject, false);
         errorText = "";
+
+        board.place(pos, activeTile);
         return true;
     }
 

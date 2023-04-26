@@ -101,7 +101,6 @@ public class PlayerController : MonoBehaviour
                 cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
             }
 
-            if(!claimingStage) { GameManager.Instance.advanceTurn(); }
         }
 
         if(claimingStage)
@@ -119,11 +118,14 @@ public class PlayerController : MonoBehaviour
                             claimingStage = false;
                             break;
                         default:
+                            Debug.Log("Unknown error claiming!");
                             break;
 
                     }
                 } else if( edge == 6)
                 {
+                    Destroy(cursorVisual);
+                    cursorVisual = GameManager.Instance.getPreviewTileObject(selectedPos);
                     claimingStage = false;
                     GameManager.Instance.advanceTurn();
                 }
